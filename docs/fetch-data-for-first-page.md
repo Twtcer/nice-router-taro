@@ -2,15 +2,15 @@
 
 在`hello-daas-page`的基础上增加两个功能，页面加载后获取服务器数据，点击button跳转到me页面。
 
-1. IDE中修改`hello-daas-page.js`
+1. IDE中修改`hello-daas-page.jsx`
    
    ```javascript
-   import Taro from '@tarojs/taro'
+   import React from 'react'
    import { Button, View } from '@tarojs/components'
    import NavigationService from '@/nice-router/navigation.service'
    import Config from '@/utils/config'
    
-   export default class HelloDaaSPage extends Taro.PureComponent {
+   export default class HelloDaasPage extends React.PureComponent {
    
      state = {
        pageTitle: '等着。。。还在请求',

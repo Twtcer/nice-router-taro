@@ -1,19 +1,19 @@
+import { isEmpty, isNotEmpty } from '@/nice-router/nice-router-util'
 import Taro from '@tarojs/taro'
-import m_ from '@/utils/mini-lodash'
+import _ from 'lodash'
 
 let device = {}
 
 function getDevice() {
-  if (m_.isEmpty(device)) {
-    const res = Taro.getSystemInfoSync()
-    device = res
+  if (isEmpty(device)) {
+    device = Taro.getSystemInfoSync()
   }
   return device
 }
 
 export function toRpx(num) {
   // Taro.pxTransform
-  if (m_.isNumber(num)) {
+  if (_.isNumber(num)) {
     const width = getDeviceWidth()
     const result = (num * (750 / width)).toFixed(2)
     return `${result}rpx`
@@ -36,7 +36,7 @@ export function enrichListOfEntity({ dataContainer, targetList = [], root = {} }
   if (!refsEntityContainer) {
     refsEntityContainer = root.dataContainer
   }
-  if (!refsEntityContainer || (m_.isEmpty(refsEntityContainer) && !m_.isEmpty(targetList))) {
+  if (!refsEntityContainer || (isEmpty(refsEntityContainer) && isNotEmpty(targetList))) {
     console.log('data container is empty, and target is not empty, return itself')
     return targetList
   }
@@ -45,7 +45,7 @@ export function enrichListOfEntity({ dataContainer, targetList = [], root = {} }
     return targetList ? doEnrichment(targetList) : []
   }
   const tempObj = {}
-  m_.forEach(names, (it) => {
+  _.forEach(names, (it) => {
     const list = root[it] || []
     if (list.length > 0) {
       tempObj[it] = doEnrichment(list)
@@ -54,36 +54,74 @@ export function enrichListOfEntity({ dataContainer, targetList = [], root = {} }
   return tempObj
 }
 
-function dateFormat(t, fmt) {
-  var o = {
-    'M+': t.getMonth() + 1, //月份
-    'd+': t.getDate(), //日
-    'h+': t.getHours(), //小时
-    'm+': t.getMinutes(), //分
-    's+': t.getSeconds(), //秒
-    'q+': Math.floor((t.getMonth() + 3) / 3), //季度
-    S: t.getMilliseconds(), //毫秒
+export function transToDate(value) {
+  const dateValue = new Date(value)
+  const ifDateType = dateValue instanceof Date && !_.isNaN(dateValue)
+  return ifDateType ? dateValue : null
+}
+
+function dateFormat(time, fmt) {
+  const values = {
+    'M+': time.getMonth() + 1, //月份
+    'd+': time.getDate(), //日
+    'D+': time.getDate(), //日
+    'H+': time.getHours(), //小时
+    'h+': time.getHours() % 12, //小时
+    'm+': time.getMinutes(), //分
+    's+': time.getSeconds(), //秒
+    'q+': Math.floor((time.getMonth() + 3) / 3), //季度
+    S: time.getMilliseconds(), //毫秒
   }
-  if (/(y+)/.test(fmt)) {
-    fmt = fmt.replace(RegExp.$1, (t.getFullYear() + '').substr(4 - RegExp.$1.length))
+  if (/([y,Y]+)/.test(fmt)) {
+    fmt = fmt.replace(RegExp.$1, (time.getFullYear() + '').substr(4 - RegExp.$1.length))
   }
-  for (var k in o) {
-    if (new RegExp('(' + k + ')').test(fmt)) {
-      fmt = fmt.replace(RegExp.$1, RegExp.$1.length == 1 ? o[k] : ('00' + o[k]).substr(('' + o[k]).length))
+  for (const key in values) {
+    if (new RegExp('(' + key + ')').test(fmt)) {
+      fmt = fmt.replace(
+        RegExp.$1,
+        RegExp.$1.length == 1 ? values[key] : ('00' + values[key]).substr(('' + values[key]).length)
+      )
     }
   }
   return fmt
 }
 
 export function formatTime(time, fmt = 'yyyy-MM-dd') {
-  return dateFormat(new Date(time), fmt)
+  if (time) {
+    return dateFormat(new Date(time), fmt)
+  }
+  return ''
 }
 
 export function formatMoney(money) {
-  if (m_.isNumber(money)) {
+  if (isEmpty(money)) {
+    return ''
+  }
+  if (_.isNumber(money)) {
     return money.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')
   }
   return money
+}
+
+export function isH5() {
+  return Taro.getEnv() === Taro.ENV_TYPE.WEB
+}
+
+export function isWeapp() {
+  return Taro.getEnv() === Taro.ENV_TYPE.WEAPP
+}
+
+export function isDevEnv() {
+  return process.env.NODE_ENV === 'development'
+}
+
+export function removeOrPush(list = [], item, withClone = false) {
+  const result = withClone ? _.clone(list) : list
+  const target = _.remove(result, item)
+  if (target.length === 0) {
+    result.push(item)
+  }
+  return result
 }
 
 // export function transCandidateValuesToRange(field = {}) {

@@ -1,26 +1,26 @@
+import { isH5 } from '@/utils/index'
 import Taro from '@tarojs/taro'
-import parse from 'url-parse'
-import qs from 'qs'
-import isObject from 'lodash/isObject'
-import isEmpty from 'lodash/isEmpty'
-import trim from 'lodash/trim'
-import startsWith from 'lodash/startsWith'
+import ActionUtil from './action-util'
+
 import localCacheService from './local-cache.service'
-import { LoadingType, toTaroUrl } from './nice-router-util'
+import {
+  isEmpty,
+  isLocalPagePath,
+  isNotEmpty,
+  LoadingType,
+  log,
+  noop,
+  parseTaroUri,
+  toTaroUrl,
+} from './nice-router-util'
 
 const PAGE_LEVEL_LIMIT = 10
 
 let _container = {} // eslint-disable-line
 
-const isH5Path = (uri) => startsWith(uri, 'https://') || startsWith(uri, 'http://')
-
-const getActionUri = (action) => {
-  let result = action
-  if (isObject(action)) {
-    const { linkToUrl, uri } = action
-    result = linkToUrl || uri
-  }
-  return result || ''
+const isH5Path = (uri = '') => {
+  const str = uri.trim().toLowerCase()
+  return str.startsWith('https://') || str.startsWith('http://')
 }
 
 const NavigationService = {
@@ -37,24 +37,20 @@ const NavigationService = {
     _container = container
   },
 
-  isActionLike(action) {
-    return !isEmpty(getActionUri(action))
-  },
-
   dispatch(action, params) {
     const { dispatch, props = {} } = _container || {}
-    const dispatchFunc = dispatch || props.dispatch
-    if (dispatchFunc) {
-      dispatchFunc({
-        type: action,
-        payload: params,
-      })
-    }
+    const func = dispatch || props.dispatch || noop
+    func({
+      type: action,
+      payload: params,
+    })
   },
 
-  reset(routeName, params) {
-    Taro.navigateBack(20)
-    this.navigate(routeName, params)
+  async reset(routeName, params) {
+    await Taro.navigateBack({
+      delta: 20,
+    })
+    await this.navigate(routeName, params)
   },
 
   /**
@@ -67,18 +63,20 @@ const NavigationService = {
    * eg. 后退传参 NavigationService.back({data},this)
    */
   back({ delta = 1, data } = {}, _page = {}) {
-    const { path: key } = _page.$router || {}
+    console.log('should be a error here', delta, data, _page)
+    //TODO
+    // const { path: key } = _page.$router || {}
 
-    return new Promise((resolve, reject) => {
-      Taro.navigateBack({ delta })
-        .then(() => {
-          const pageResolve = this.pagesResolves[key]
-          pageResolve && pageResolve(data)
-          this.pagesResolves[key] = null
-          resolve()
-        })
-        .catch((err) => reject(err))
-    })
+    // return new Promise((resolve, reject) => {
+    //   Taro.navigateBack({ delta })
+    //     .then(() => {
+    //       const pageResolve = this.pagesResolves[key]
+    //       pageResolve && pageResolve(data)
+    //       this.pagesResolves[key] = null
+    //       resolve()
+    //     })
+    //     .catch((err) => reject(err))
+    // })
   },
 
   /**
@@ -92,30 +90,41 @@ const NavigationService = {
     return new Promise((resolve, reject) => {
       const pages = Taro.getCurrentPages()
       const url = toTaroUrl(routeName, params)
+
+      console.log('taro-redirect', url)
+
       if (routeName) {
-        let { method = 'navigateTo' } = options
+        let { navigationOptions: { method = 'navigateTo' } = {} } = options
         if (
-          (method == 'navigateTo' && pages.length >= PAGE_LEVEL_LIMIT - 3) ||
-          (method == 'navigateToByForce' && pages.length == PAGE_LEVEL_LIMIT)
+          (method === 'navigateTo' && pages.length >= PAGE_LEVEL_LIMIT - 3) ||
+          (method === 'navigateToByForce' && pages.length === PAGE_LEVEL_LIMIT)
         ) {
           method = 'redirectTo'
         }
         // 把resolve存起来，主动调用 back的时候再调用
-        console.log('resolve...resolve', this.pagesResolves[routeName])
+        log('resolve...resolve', this.pagesResolves[routeName])
         const routeMethod = Taro[method]
         if (routeMethod) {
           routeMethod({ url })
             .then(() => {
-              this.pagesResolves[routeName] = resolve
+              // this.pagesResolves[routeName] = resolve
+              if (resolve) {
+                resolve()
+              }
             })
             .catch((err) => {
               const { errMsg = '' } = err
               if (errMsg.indexOf('a tabbar page')) {
                 // Taro.switchTab({ url }).then(clearPagesResolves)
-                Taro.switchTab({ url }).then(() => this.clearPagesResolves())
+                Taro.switchTab({ url }).then(() => {
+                  // this.clearPagesResolves()
+                  if (resolve) {
+                    resolve()
+                  }
+                })
                 return
               }
-              console.log(`Trao.${method} run failed`, err)
+              log(`Taro.${method} run failed`, err)
               reject(err)
             })
         }
@@ -123,70 +132,89 @@ const NavigationService = {
     })
   },
 
-  view(uri, params = {}, options = {}) {
-    this.routeTo({ uri, params, ...options })
+  view(action, params = {}, options = {}) {
+    return this.routeTo({ action, params, ...options })
   },
 
-  ajax(uri, params, options = {}) {
-    this.routeTo({ uri, loading: LoadingType.none, params, ...options, statInPage: true })
+  ajax(action, params, options = {}) {
+    return this.routeTo({
+      action,
+      params,
+      loading: LoadingType.none,
+      ...options,
+      statInPage: true,
+    })
   },
 
-  post(uri, params, options = {}) {
-    this.routeTo({ uri, params, ...options, method: 'post' })
+  post(action, params, options = {}) {
+    return this.routeTo({
+      action,
+      params,
+      ...options,
+      method: 'post',
+    })
   },
 
-  put(uri, params, options = {}) {
-    this.routeTo({ uri, params, ...options, method: 'put' })
+  put(action, params, options = {}) {
+    return this.routeTo({
+      action,
+      params,
+      ...options,
+      method: 'put',
+    })
   },
 
-  async routeTo(action) {
-    const { uri: actionUri = '', cache = false, params } = action
-
-    const uri = getActionUri(actionUri)
-
-    console.log('************')
-    console.log('start to NavigationService.routeTo, action uri :', uri)
-    console.log('************')
-
-    if (uri.length === 0) {
+  async routeTo(routerParams) {
+    const action = ActionUtil.trans2Action(routerParams)
+    const { linkToUrl, cache = false, params } = action
+    if (isEmpty(linkToUrl)) {
       return
     }
 
-    // 1, 前端页面跳转, page:ArticleForm?type=qa 或跳转到Article的screen
-    const urlData = parse(uri)
-    const { protocol } = urlData
-    if (protocol === 'page:') {
-      const { query, pathname } = urlData
-      const queryParams = qs.parse(query)
-      const pageName = trim(pathname, '/')
-      this.navigate(pageName, { ...params, ...queryParams })
-      return
+    // action上带有属性，confirmContent, 触发先confirm再执行相关动作
+    const confirmContent = ActionUtil.getConfirmContent(action)
+    if (isNotEmpty(confirmContent)) {
+      const confirmResp = await Taro.showModal({
+        title: action.title,
+        content: confirmContent,
+      })
+      if (!confirmResp.confirm) {
+        return
+      }
     }
 
-    // 2, H5 页面跳转
-    if (isH5Path(uri)) {
-      this.navigate('/nice-router/h5-page', { uri })
-      return
+    // 1, 前端页面跳转, page:///pages/home/home-page?type=qa 或跳转到HomePage的screen
+    if (isLocalPagePath(linkToUrl)) {
+      const { queryParams, pathname } = parseTaroUri(linkToUrl)
+      return this.navigate(pathname, { ...params, ...queryParams })
+    }
+
+    // 2, H5跳转：目标页面是Http页面，小程序中需要跳转到webview
+    if (isH5Path(linkToUrl)) {
+      let h5PageTarget = linkToUrl
+      const h5Param = {}
+      if (!isH5()) {
+        h5PageTarget = '/nice-router/h5-page'
+        h5Param.uri = linkToUrl
+      }
+      return this.navigate(h5PageTarget, h5Param)
     }
 
     // 3, 后端路由, 获取后端路由缓存
-    const cachedPage = await localCacheService.getCachedPage(uri)
-    console.log('go to cached page first', cachedPage)
+    const cachedPage = localCacheService.getCachedPage(linkToUrl)
+    log('go to cached page first', cachedPage)
     // 如果缓存存在，做页面跳转
     if (cachedPage) {
       // this.navigate(cachedPage)
       // TODO
-      console.log('need CACHE the DATA', cache)
+      log('need CACHE the DATA', cache)
       // if (cache) {
       //   return
       // }
     }
 
     // 发送请求
-    this.dispatch('niceRouter/route', {
-      ...action,
-      uri,
-    })
+    this.dispatch('niceRouter/route', action)
   },
 }
 

@@ -96,7 +96,7 @@ type=button
       size='small'
       linkToUrl='https://www.baidu.com/'
 >
-    <AtIcon value='download-cloud' />
+    <ActionIcon value='download-cloud' />
 </EleButton>
 ```
 
@@ -132,7 +132,7 @@ Items中支持视频和图片
 
 ###### EleMessageSwiper
 
- type=message-swiper
+ type=notice-bar
 
 一个上下滚动的消息广播
 
@@ -322,7 +322,7 @@ const footer = {
 
 ![](/docs/assets/footer.png)
 
-###### EleQRCode
+###### EleQrcode
 
 type=qrcode 
 
@@ -334,13 +334,17 @@ type=qrcode
 | size    | size={150}                   | 二维码大小                    |
 | bgColor | bgColor='#fff'               | 背景颜色                     |
 | color   | color='#000'                 | 二维码的颜色                   |
+| logo   | logo={image}                 |  中间logo的图片，网络图片需要先下载                   |
+| logoSize   | logoSize={100}                 |  中间logo的图片大小                  |
 
 ```javascript
-   <EleQRCode
-          size={150}
-          text='第0适合后端程序员的前端小程序开发框架'
-          color='#f23030'
-   />
+  <EleQrcode
+        size={300}
+        logoSize={100}
+        logo={logo}
+        text='第0适合后端程序员的前端小程序开发框架'
+        color='#f23030'
+      />
 ```
 
 ![](/docs/assets/qrcode.png)
@@ -353,7 +357,7 @@ type=more-actions
 | ---------- | ------------------------- | --------------------------------------------- |
 | text       |                           | 可选，文字描述, 例如"更多"，"操作"                          |
 | imageUrl   |                           | 可选，icon图片，例如"..."的图                           |
-| icon       |                           | 可选，AtIcon中的value                              |
+| icon       |                           | 可选，Iconfont中的value                              |
 | actionList | actionList=["取消关注","举报"}] | 一组用来展示成ActionSheet的Action                     |
 | mode       |                           | 默认值auto，可选值 actionSheet，link                  |
 | linkToUrl  |                           | 当配置了linkToUrl的时候，优先使用它做页面跳转（常常是跳转到ListofPage） |
@@ -526,7 +530,7 @@ type=textarea
 
 ```
 
-###### EleVcode
+###### MobileVerifyCode
 
 type=vcode 
 

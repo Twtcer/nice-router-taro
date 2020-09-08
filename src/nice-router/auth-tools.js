@@ -1,27 +1,37 @@
 import jwtDecode from 'jwt-decode'
+import { isNotEmpty, log } from './nice-router-util'
 import StorageTools from './storage-tools'
 
 const TOKEN = 'TOKEN'
 const AUTH_INFO = 'AUTH_INFO'
+
+const SAFTY_TIME = 1800 //预留半个小时过期（单位秒）
 
 async function saveTokenAsync(token) {
   StorageTools.set(TOKEN, token)
   const authInfo = jwtDecode(token)
   StorageTools.set(AUTH_INFO, authInfo)
 
-  console.log('saveToken', token)
-  console.log('saveAuthInfo', authInfo)
+  log('saveToken', token)
+  log('saveAuthInfo', authInfo)
   return authInfo
+}
+
+async function isValidateToken() {
+  const authInfo = await getAuthInfoAsync()
+  if (isNotEmpty(authInfo) && authInfo.exp > 0) {
+    log('the token expTime is', authInfo.exp, 'will exp ', authInfo.exp - Date.now() / 1000, 'latter')
+    return authInfo.exp - Date.now() / 1000 > SAFTY_TIME
+  }
+  return false
 }
 
 async function getAuthInfoAsync() {
-  const authInfo = await StorageTools.get(AUTH_INFO, {})
-  return authInfo
+  return StorageTools.get(AUTH_INFO, {})
 }
 
 async function getTokenAsync() {
-  const token = await StorageTools.get(TOKEN, '')
-  return token
+  return StorageTools.get(TOKEN, '')
 }
 
 async function logout() {
@@ -55,5 +65,6 @@ const AuthTools = {
   saveTokenAsync,
   logout,
   // syncToken,
+  isValidateToken,
 }
 export default AuthTools

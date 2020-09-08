@@ -19,7 +19,7 @@ GenericPage的设计原理很简单，通过解析服务端返回的数据结合
 
 nice-router 会路由到GenericPage页面渲染数据。
 
-又来一个栗子（数据：mock-data-genericpage.js）
+又来一个栗子（数据：mock-genericpage.data.js）
 
 ![](/docs/assets/generic-page.gif)
 
@@ -29,7 +29,7 @@ nice-router 会路由到GenericPage页面渲染数据。
 
 查询文档或者代码，确定目前支持的组件
 
-./src/genericpage/container/ele-flex.js
+./src/genericpage/container/ele-flex.jsx
 
 组件目前分为4大部分
 

@@ -1,51 +1,48 @@
-@import '../../styles/theme';
+@import 'src/styles/theme';
 
 .me-page {
   @extend %page;
 
   &-header {
     background-color: #fff;
+    @extend %flex-column;
 
-    &-top {
+    &-info {
+      @extend %flex-row;
       background-color: $primary-color;
-      display: flex;
-      flex-direction: row;
       align-items: center;
       border-bottom-left-radius: 50px;
-      padding-bottom: 60px;
+      padding-bottom: 40px;
+      padding-top: 30px;
+      width: 100%;
 
-      .avatar {
-        padding: 0 40px;
-        width: 120px;
-        height: 120px;
-
-        image {
-          width: 120px;
-          height: 120px;
-          border-radius: 50%;
-          border: 2px solid #fff;
-        }
+      .me-avatar {
+        margin: 20px 40px 40px;
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        border: 8px solid darken($primary-color, 10%);
+        box-shadow: 0 0 20px #fff;
       }
 
-      .content {
+      .at-button {
+        margin: 0;
+      }
+
+      .me-title {
         color: $white;
-        display: flex;
-        flex-direction: column;
+        @extend %flex-column;
         justify-content: center;
-        font-size: 24px;
+        font-size: 30px;
 
         &-name {
-          font-size: 40px;
+          font-size: 38px;
         }
 
         &-brief {
-          font-size: 22px;
+          font-size: 24px;
         }
       }
-    }
-
-    &-footer {
-      padding-top: 20px;
     }
   }
 

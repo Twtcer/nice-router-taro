@@ -2,34 +2,25 @@ import viewConfig from './viewmapping.config'
 
 const baseURL = 'https://demo2.doublechaintech.com/storedev/wxappService/' //后端服务地址
 
-const niceRouterConfig = {
-  name: '双链科技',
+const Config = {
+  name: 'NiceRouter App Start',
   baseURL,
   version: 1,
   appType: 'mini-program',
   viewConfig,
   backendRouterPageKeyBlackList: ['refreshPage/', 'goBack/', 'goPrevious/'],
-  backendRouterPageBlackList: ['NetworkException', 'EditProfileForm', 'Login', 'Me', 'UserDetail'],
+  backendRouterPageBlackList: ['NetworkException'],
   api: {
-    GenericPageMock: 'mock/',
-
     FooterHome: 'viewHomepage/',
     FooterMe: 'customerViewDashboard/',
+
     Login: 'clientLogin/',
     VerifyCode: 'sendVerifyCode/:mobile/',
+    OSSToken: 'customGetOssToken/',
   },
-}
-
-const Config = {
-  ...niceRouterConfig,
-  name: 'NiceRouter App Start',
-  oss: {
-    ossBucket: 'doublechain-public',
-    staticUrl: 'https://doublechaintech-public.oss-cn-beijing.aliyuncs.com/',
-    endPoint: 'oss-cn-beijing.aliyuncs.com',
-  },
-  goBackSkipScreen: [],
-  useWxLogin: true,
+  // loginMethod:'wechat',
+  // loginMethod:'vcode',
+  loginMethod: 'password',
 }
 
 console.log('***********   current env  ***********   ')

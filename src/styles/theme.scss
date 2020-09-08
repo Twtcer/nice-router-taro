@@ -1,63 +1,89 @@
+// 注意这里只需要放变量，不要放带有网络请求的东西，不然，请求n次网络，例如字体文件。
+// https://github.com/NervJS/taro/issues/6034
 @import './mixins.scss';
-//
-///* Taro UI Custom Theme */
-//$color-brand: #32c8b4;
-//$color-brand-light: #65d6c7;
-//$color-brand-dark: #28a090;
-//
-//$primary-color: #32c8b4;
-//$disabled-color: #ddd;
-//
-//$black: #000;
-//$white: #fff;
-//
-//$text-color: #333;
-//$text-color-light: #666;
-//$text-color-lighter: #999;
-//
-//$border-color: #ddd;
-//$border-radius: 4px;
-//
-//$image-bg: #f4f4f4;
-//
-//$border-color-light-blue: #03a9f4;
-//
-//$price-text: #f23030;
-//
-//$color-orange: #ee620a;
-
+@import 'node_modules/taro-ui/dist/style/mixins/libs/hairline';
 // Custom Theme 通过https://nervjs.github.io/taro-ui-theme-preview/ 处理
-$color-brand: #6dbb4d;
-$color-brand-light: #92cc7a;
-$color-brand-dark: #57963e;
+$color-brand: #28aaff;
+$color-brand-light: #5ebfff;
+$color-brand-dark: #2088cc;
 // end Custom Theme
 
 $primary-color: $color-brand;
 
-$border-color: #f4f6f8;
-$border-radius: 4px;
+$border-color: #c5d9e8;
+$border-color-light: lighten($border-color, 20%);
+$color-border-grey: #ccc;
 $border-color-light-blue: $color-brand-light;
+
 $disabled-color: #ddd;
+$border-radius: 4px;
+
+$border-default: 1px solid $border-color;
+
+$shadow-color: rgba(40, 170, 255, 0.1);
+//$shadow-color: $primary-color;
 
 $black: #000;
 $white: #fff;
+$orange-color: #fd8814;
+$red-color: #f23030;
+$golden-color: #ab956d;
+$silver-grey-color: #ccc;
+$light-grey-color: #ededed;
+$ice-blue-color: #53c7ca; //冰蓝
 
+$text-size: 32px;
 $text-color: #333;
 $text-color-light: #56585c;
 $text-color-lighter: #999;
 
+$level-default: $text-color-light;
+$level-normal: #07c160;
+$level-primary: $primary-color;
+$level-warn: #ffc300;
+$level-danger: #fa5151;
+
+$price-color: #f2270c;
+
 $image-bg: #f4f4f4;
-$price-text: #f23030;
 
-$color-orange: #ee620a;
+$color-page-bg: #f0f2f5;
 
-$color-page-bg: #f4f6f8;
-
-$b181black: Brother-1816-Black, -apple-system, system-ui !important;
+$under-line-color: #c4d8e7;
 
 %page {
   display: flex;
   flex-direction: column;
   background-color: $color-page-bg;
   min-height: 100vh;
+  color: $text-color;
+}
+
+%flex {
+  display: flex;
+  box-sizing: border-box;
+}
+
+%flex-1 {
+  display: flex;
+  flex: 1;
+  box-sizing: border-box;
+}
+
+%flex-row {
+  display: flex;
+  box-sizing: border-box;
+  flex-direction: row;
+}
+
+%flex-column {
+  @extend %flex;
+  flex-direction: column;
+}
+
+%flex-center {
+  display: flex;
+  box-sizing: border-box;
+  justify-content: center;
+  align-items: center;
 }

@@ -1,50 +1,31 @@
-import Taro from '@tarojs/components'
+import Taro from '@tarojs/taro'
 import NavigationService from './navigation.service'
+import { isNotEmpty } from './nice-router-util'
 
 export default class PopupMessage {
-  handleLike = () => {
-    const { actions = {} } = this.props
-    const { like } = actions
-    this.setState(
-      (pre) => ({
-        likeCount: like.code === 'like' ? pre.likeCount + 1 : pre.likeCount - 1,
-      }),
-      () => {
-        NavigationService.ajax(
-          like,
-          {},
-          {
-            onSuccess: (resp) => {
-              this.setState({ likeCount: resp.likeCount })
-            },
-          }
-        )
-      }
-    )
-  }
-
-  static show(options = {}) {
-    const { title, text, actionList = [], closeActionText = '关闭' } = options
-    const confirmAction = actionList.length > 0 ? actionList[0] : null
-    if (confirmAction) {
+  static async show(options = {}) {
+    const { title = '提示', text = '？', actionList = [], closeActionText = '关闭' } = options
+    const action = actionList.length > 0 ? actionList[0] : null
+    if (isNotEmpty(action)) {
+      const { title: confirmText = '' } = action
       Taro.showModal({
         title,
         content: text,
         cancelText: closeActionText,
-        confirmText: confirmAction.title,
+        confirmText,
       }).then((res) => {
         if (res.confirm) {
-          if (confirmAction.ajax) {
-            NavigationService.ajax(confirmAction)
+          if (action.ajax) {
+            NavigationService.ajax(action)
             return
           }
-          NavigationService.view(confirmAction)
+          NavigationService.view(action)
         }
       })
       return
     }
 
-    Taro.showModal({
+    await Taro.showModal({
       title,
       content: text,
       cancelText: closeActionText,

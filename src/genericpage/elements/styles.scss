@@ -1,0 +1,174 @@
+@import 'src/styles/theme';
+
+.image-placeholder {
+  background: $image-bg;
+  color: $white;
+  @extend %flex-center;
+}
+
+.ele-store-location {
+  padding: 0 20px;
+  background-color: $white;
+
+  .header {
+    @extend %flex;
+    padding: 20px 0;
+
+    &-image {
+      border-radius: 50%;
+      width: 120px;
+      height: 120px;
+    }
+
+    &-right {
+      width: 100%;
+      overflow: hidden;
+      padding-left: 20px;
+
+      &-name {
+        font-size: 28px;
+        margin-left: 10px;
+        height: 48px;
+        line-height: 48px;
+        color: $black;
+        padding: 12px 0;
+        @include text-ellipsis;
+      }
+
+      &-summary {
+        font-size: 28px;
+        color: $text-color-lighter;
+        height: 36px;
+        line-height: 36px;
+        @include text-ellipsis;
+      }
+
+      &-tags {
+        @extend %flex;
+
+        &-item {
+          margin-left: 10px;
+        }
+      }
+    }
+  }
+
+  .info-item {
+    @extend %flex;
+    align-items: center;
+    line-height: 80px;
+    border-top: 1px solid rgb(250, 240, 250);
+
+    &-txt {
+      margin-left: 20px;
+      font-size: 30px;
+      color: $text-color;
+      @include text-ellipsis;
+    }
+  }
+}
+
+.store-location-big {
+  margin: 20px 0;
+  background-color: $white;
+  box-sizing: border-box;
+  border-radius: 10px;
+  box-shadow: 0 10px 19px 1px rgba(0, 0, 0, 0.08);
+
+  &-face-image {
+    width: 100%;
+    height: 400px;
+  }
+
+  &-title {
+    padding: 20px;
+    align-items: center;
+    @extend %flex-row;
+
+    &-logo {
+      padding-right: 20px;
+      height: 40px;
+      width: 40px;
+    }
+  }
+
+  &-content {
+    padding: 20px 40px 20px 20px;
+    @extend %flex-row;
+    justify-content: center;
+    font-size: 26px;
+    width: 100%;
+
+    &-address {
+      padding: 0 15px;
+      @extend %flex-1;
+    }
+
+    &-icon {
+      color: $primary-color;
+    }
+  }
+}
+
+.ele-fab {
+  position: fixed;
+  right: 50px;
+  bottom: 160px;
+  z-index: 99999;
+  opacity: 0.8;
+
+  .action-icon {
+    width: 80px;
+
+    .iconfont {
+      font-size: 60px !important;
+    }
+  }
+
+  &-txt {
+    color: $white;
+  }
+}
+
+.ele-more-actions {
+  @extend %flex-center;
+
+  &-txt {
+    font-size: 30px;
+    margin-right: 40px;
+  }
+}
+
+.ele-notice-bar {
+  @extend %flex-row;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 40px 10px 40px;
+
+  &-icon {
+    color: $orange-color;
+    height: 50px;
+  }
+
+  &-messages {
+    height: 50px;
+    width: 100%;
+    margin-left: 20px;
+
+    &-item {
+      @extend %flex;
+      align-items: center;
+      &-txt {
+        color: $text-color-light;
+        font-size: 30px;
+      }
+    }
+  }
+}
+
+.ele-navigation-box {
+  .navigation-box-img {
+    margin-bottom: 20px;
+    width: 80px !important;
+  }
+}

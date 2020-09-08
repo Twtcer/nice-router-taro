@@ -1,20 +1,10 @@
-import split from 'lodash/split'
-import trim from 'lodash/trim'
-import slice from 'lodash/slice'
-import isEmpty from 'lodash/isEmpty'
 import NiceRouter from './nice-router'
+import { isEmpty, isNotEmpty, log } from './nice-router-util'
 import StorageTools from './storage-tools'
 
 function getPageKeyByUri(uri = '') {
   let key = uri
-  if (key.length > 0) {
-    const ary = split(trim(uri, '/'), '/')
-    let end = ary.length
-    if (ary[0] !== 'customerEntryPointClicked' && ary[0] !== 'onChannelClicked') {
-      end = ary.length > 3 ? ary.length - 1 : 2
-    }
-    key = `${slice(ary, 0, end).join('/')}/`
-  }
+  //TODO 小程序上，应该有点问题，暂时没有测试
   key = `${StorageTools.PageCachePrefix}${key}`
   return key
 }
@@ -23,7 +13,7 @@ function inBlackList(key, page) {
   const result =
     NiceRouter.config.backendRouterPageBlackList.includes(page) ||
     NiceRouter.config.backendRouterPageKeyBlackList.includes(key)
-  console.log('key and page is in black list?', result)
+  log('key and page is in black list?', result)
   return result
 }
 
@@ -34,20 +24,19 @@ const LocalCache = {
 // 后端路由缓存
 LocalCache.saveBackendRouter = async (uri, page) => {
   const key = getPageKeyByUri(uri)
-  console.log('start save backend router to cache, uri:', uri, ', page:', page)
+  log('start save backend router to cache, uri:', uri, ', page:', page)
   if (!inBlackList(key, page)) {
     // 缓存前端路由3天
     if (key.length > 0) {
-      StorageTools.set(key, page, 60 * 24 * 3)
+      StorageTools.set(key, page, 3600 * 24 * 3)
     }
   }
 }
 
 // 后端路由缓存
-LocalCache.getCachedPage = async (uri) => {
+LocalCache.getCachedPage = (uri) => {
   const key = getPageKeyByUri(uri)
-  const pageName = await StorageTools.get(key)
-  return pageName
+  return StorageTools.get(key)
 }
 
 // 查看 Form是否被提交成功
@@ -57,14 +46,14 @@ LocalCache.isCachedForm = async (url, params = {}) => {
   }
   const content = JSON.stringify(params)
   const key = `${url}_${content}`
-  return StorageTools.isExpired(key)
+  return !StorageTools.isExpired(key)
 }
-// form 提交内容 缓存 3 分钟
+// form 提交内容 缓存 30 秒
 LocalCache.cacheForm = async (url, params = {}) => {
-  if (!isEmpty(params)) {
+  if (isNotEmpty(params)) {
     const content = JSON.stringify(params)
     const key = `${url}_${content}`
-    StorageTools.set(key, params, 3)
+    StorageTools.set(key, params, 30)
   }
 }
 

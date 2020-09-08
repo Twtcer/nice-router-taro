@@ -1,18 +1,16 @@
 /* eslint-disable consistent-return */
-import isArray from 'lodash/isArray'
-import isEmpty from 'lodash/isEmpty'
-import mergeWith from 'lodash/mergeWith'
-import concat from 'lodash/concat'
+import { isNotEmpty } from '@/nice-router/nice-router-util'
+import _ from 'lodash'
 
 function replaceArray(objValue, srcValue) {
-  if (isArray(objValue)) {
+  if (Array.isArray(objValue)) {
     return srcValue
   }
 }
 
 function concatArray(objValue, srcValue) {
-  if (isArray(objValue)) {
-    return concat(objValue, srcValue)
+  if (Array.isArray(objValue)) {
+    return objValue.concat(srcValue)
   }
 }
 
@@ -21,7 +19,7 @@ function mergeState(preState = {}, newState = {}, doMerge = false, arrayMerge = 
   const { viewHashString: newHash } = newState
 
   // 数据没有变化
-  if (!isEmpty(newHash) && preHash === newHash) {
+  if (isNotEmpty(newHash) && preHash === newHash) {
     return null
   }
 
@@ -32,7 +30,9 @@ function mergeState(preState = {}, newState = {}, doMerge = false, arrayMerge = 
 
   // merge 对象, 不指定array的merge方法，默认为concat data to legacy array
   const processor = arrayMerge === 'replace' ? replaceArray : concatArray
-  const result = mergeWith(preState, newState, processor)
+  // 小程序下没问题，但是H5中，redux做的浅比较，ajax会有问题
+  // const result = mergeWith(preState, newState, processor)
+  const result = _.mergeWith({}, preState, newState, processor)
   console.log('merged result', result)
 
   return result

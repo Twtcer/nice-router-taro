@@ -1,55 +1,45 @@
-@import '../../styles/theme';
+@import 'src/styles/theme';
 
 .login-page {
   @extend %page;
   background-color: $primary-color;
   height: 100vh;
-  padding: 36px;
+  padding: 0 36px;
   box-sizing: border-box;
 
   &-header {
-    display: flex;
+    @extend %flex-row;
     flex: 3;
-    flex-direction: row;
     align-items: flex-end;
-    padding-bottom: 80px;
+    padding-bottom: 100px;
 
     &-txt {
-      display: flex;
+      @extend %flex-column;
       flex: 1;
-      flex-direction: column;
       font-size: 80px;
-      font-family: $b181black;
       color: $white;
       font-weight: bold;
       line-height: 100px;
+      @extend %flex-1;
     }
 
     &-logo {
-      display: flex;
-      flex: 1;
-      justify-content: flex-end;
-      padding-bottom: 20px;
-
-      image {
-        width: 150px;
-        height: 82px;
-      }
+      margin-bottom: 20px;
+      width: 150px;
+      height: 82px;
     }
   }
 
   &-body {
-    display: flex;
+    @extend %flex-column;
     flex: 7;
-    flex-direction: column;
 
     .login-form {
-      display: flex;
+      @extend %flex-column;
       flex: 1;
-      flex-direction: column;
+      padding-top: 20px;
 
       &-brief {
-        font-family: $b181black;
         font-size: 32px;
         font-weight: 900;
         line-height: 36px;
@@ -60,14 +50,20 @@
         font-weight: 400;
       }
 
-      &-phone {
-        margin-top: 50px;
-        margin-left: 0;
-      }
+      &-fields {
+        padding-top: 20px;
 
-      &-vcode-value {
-        margin-top: 28px;
-        margin-left: 0;
+        &-txt-input {
+          margin-top: 20px;
+          margin-left: 0;
+          padding-left: 20px;
+          border-radius: 8px;
+        }
+
+        &-vcode-value {
+          margin-top: 28px;
+          margin-left: 0;
+        }
       }
     }
 
@@ -75,7 +71,7 @@
       background-color: darken($primary-color, 20%);
       border-radius: 10px;
       margin-bottom: 40px;
-      box-shadow: 0px 15px 10px 1px rgba(40, 170, 255, 0.1);
+      box-shadow: 0 15px 10px 1px rgba(40, 170, 255, 0.1);
     }
   }
 }

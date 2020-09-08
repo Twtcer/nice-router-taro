@@ -1,15 +1,15 @@
 /* eslint-disable prefer-promise-reject-errors */
 import Taro from '@tarojs/taro'
-import memoize from 'lodash/memoize'
-import md5 from 'blueimp-md5'
+import _ from 'lodash'
+import { log, parseJSON } from './nice-router-util'
 
 const CACHE_PREFIX = 'cachestore-'
 const CACHE_EXPIRATION_PREFIX = 'cacheexpiration-'
-const EXPIRY_UNITS = 60 * 1000
+const EXPIRY_UNITS = 1000 // seconds
 
-const shortKey = (key) => (key.length > 100 ? md5(key) : key)
+const shortKey = (key = '') => key.slice(0, 200)
 
-const getKeys = memoize((key = '') => {
+const getKeys = _.memoize((key = '') => {
   const short = shortKey(key)
   const theKey = CACHE_PREFIX + short
   const exprKey = CACHE_EXPIRATION_PREFIX + short
@@ -30,9 +30,15 @@ const StorageTools = {
       return
     }
     const value = Taro.getStorageSync(theKey)
-    return value ? JSON.parse(value) : defaultValue
+    return value ? parseJSON(value) : defaultValue
   },
 
+  /**
+   *
+   * @param key
+   * @param value
+   * @param time unit: second
+   */
   set(key, value = '', time) {
     const { exprKey, theKey } = getKeys(key)
     if (time) {
@@ -54,16 +60,20 @@ const StorageTools = {
   isExpired(key) {
     const { exprKey } = getKeys(key)
     const expiry = Taro.getStorageSync(exprKey)
-
-    const expired = expiry && currentTime() >= parseInt(expiry, 10)
-    return expired
+    if (expiry > 0) {
+      const expired = expiry && currentTime() >= parseInt(expiry, 10)
+      log('是否过期？', 1, expired, currentTime())
+      return expired
+    }
+    return true
   },
   flush() {
     const { keys } = Taro.getStorageInfoSync()
     keys.map((key) => {
       const remove = key.indexOf(CACHE_PREFIX) === 0 || key.indexOf(CACHE_EXPIRATION_PREFIX) === 0
       if (remove) {
-        Taro.removeStorage(key)
+        // noinspection JSIgnoredPromiseFromCall
+        Taro.removeStorage({ key })
       }
     })
   },
@@ -74,7 +84,8 @@ const StorageTools = {
       const remove =
         key.indexOf(`${CACHE_PREFIX}${prefix}`) === 0 || key.indexOf(`${CACHE_EXPIRATION_PREFIX}${prefix}`) === 0
       if (remove) {
-        Taro.removeStorage(key)
+        // noinspection JSIgnoredPromiseFromCall
+        Taro.removeStorage({ key })
       }
     })
   },

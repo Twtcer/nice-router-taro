@@ -1,15 +1,12 @@
-import forEach from 'lodash/forEach'
-import trim from 'lodash/trim'
-import merge from 'lodash/merge'
-import './http-request'
+import _ from 'lodash'
 import NavigationService from './navigation.service'
 
 const defaultViewConfig = {
-  'com.terapico.moyi.appview.H5Page': {
+  'com.terapico.appview.H5Page': {
     pageName: 'H5Page',
     stateAction: '/nice-router/h5-page',
   },
-  'com.terapico.caf.local.NetworkException': {
+  'NetworkException.RetryPage': {
     pageName: '/nice-router/network-exception-page',
   },
 }
@@ -37,13 +34,14 @@ const NiceRouter = {
 NiceRouter.start = ({ config = {}, container }) => {
   NavigationService.setContainer(container)
 
-  NiceRouter.config = merge(defaultConfig, config)
+  NiceRouter.config = _.merge(defaultConfig, config)
 
-  const processedViewConfig = {}
-  forEach(NiceRouter.config.viewConfig, (value, key) => {
-    processedViewConfig[trim(key)] = value
+  const tempViewConfig = {}
+  const vcfg = NiceRouter.config.viewConfig
+  Object.keys(vcfg).map((key) => {
+    tempViewConfig[key.trim()] = vcfg[key]
   })
-  NiceRouter.config.viewConfig = processedViewConfig
+  NiceRouter.config.viewConfig = tempViewConfig
 
   NiceRouter.status = NiceRouterStatus.done
 

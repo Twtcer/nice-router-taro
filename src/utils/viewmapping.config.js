@@ -10,7 +10,10 @@ const ViewmappingConfig = {
       stateAction: 'genericpage2/save',
     },
   ],
-
+  'com.terapico.caf.viewcomponent.GenericFormPage': {
+    pageName: '/genericform/genericform-page',
+    stateAction: 'genericform/save',
+  },
   'com.terapico.appview.ListOfPage': [
     {
       pageName: '/listof/listof-page',
@@ -34,12 +37,13 @@ const ViewmappingConfig = {
     pageName: '/pages/me/me-page',
     stateAction: 'me/save',
   },
-  'com.terapico.appview.LoginForm': {
+  LoginForm: {
     pageName: '/pages/login/login-page',
+    stateAction: 'app/logout',
   },
   'com.terapico.appview.HomePage': {
     pageName: '/pages/home/home-page',
-    stateAction: 'home/saveHomeData',
+    stateAction: 'home/save',
   },
 
   // end global pages
